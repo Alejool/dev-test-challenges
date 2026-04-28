@@ -1,30 +1,56 @@
 // app.js
 
-let cachedUser = null;
+let cache = new Map();
 
 async function loadUser() {
   const userId = document.getElementById('userId').value;
 
- 
-  if (userId = '') {           
+  if (userId === '') {           
     showResult('Please enter a valid ID');
     return;
   }
 
-  if (userId > 0 === false) {  
+  if ((userId) < 0 || isNaN(userId)) {  
     showResult('ID must be positive', true);
     return;
   }
 
-  
-  if (!cachedUser) {
-    cachedUser = fetchUser(userId);  
+  let user;
+
+  if (cache.has(userId)) {
+    user = cache.get(userId);
+  } else {
+    try {
+      user = await fetchUser(userId); 
+      if (user && Object.keys(user).length > 0) {
+        cache.set(userId, user);
+      }
+    } catch (error) {
+      showResult('Error fetching user', true);
+      return;
+    }
   }
 
-    const user = await cachedUser;
- 
-  document.getElementById('result').innerHTML =
-    `<strong>${user.name}</strong><br>${user.email}<br>${user.website}`;  
+  if (!user || Object.keys(user).length === 0) {
+    showResult('user not found', true);
+    return;
+  }
+
+  const resultEl = document.getElementById('result');
+  resultEl.className = ''; 
+  resultEl.innerHTML = '';
+
+  const nameEl = document.createElement('strong');
+  nameEl.textContent = user.name;
+  
+  const emailText = document.createTextNode(user.email);
+  const websiteText = document.createTextNode(user.website);
+
+  resultEl.appendChild(nameEl);
+  resultEl.appendChild(document.createElement('br'));
+  resultEl.appendChild(emailText);
+  resultEl.appendChild(document.createElement('br'));
+  resultEl.appendChild(websiteText);
 }
 
 function showResult(message, isError = false) {

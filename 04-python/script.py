@@ -7,11 +7,21 @@ users = [
     {"name": "Dave",  "email": "dave@gmail.com"},
     {"name": "Eve",   "email": "not-an-email"},      # invalid
     {"name": "Frank", "email": "frank@"},            # invalid
+    {"name": "Grace", "email": ".grace@gmail.com"},  # invalid (starts with dot)
+    {"name": "Heidi", "email": "heidi.@gmail.com"},  # invalid (ends with dot)
+    {"name": "Ivan",  "email": "ivan..b@gmail.com"}, # invalid (double dot)
+    {"name": "Judy",  "email": "judy@gmail..com"},   # invalid (double dot in domain)
 ]
 
 def validate_email(email):
-    # FIX #1: Use a regex for email validation
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    # Improved regex according to simplified RFC 5322 standard:
+    # 1. One @ symbol
+    # 2. Local part + domain
+    # 3. Allowed chars: . _ % + -
+    # 4. No starting/ending with .
+    # 5. No double dots ..
+    # 6. Domain with valid TLD (min 2 chars)
+    pattern = r'^[a-zA-Z0-9_%+-]+(?:\.[a-zA-Z0-9_%+-]+)*@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
 def group_by_domain(users):

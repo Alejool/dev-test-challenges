@@ -1,54 +1,58 @@
-# Challenge 05 — Mini App
+# 🔍 GitHub Finder Mini-App
 
-**Module weight:** 10% of total score  
-**Estimated time:** 90–120 min
+Una aplicación moderna y rápida para explorar perfiles de GitHub, construida con React y Vite.
 
-## What to Build
+## 🚀 ¿Qué se hizo?
 
-A simple fullstack mini app that:
+Se desarrolló una herramienta de búsqueda de usuarios de GitHub que proporciona una visión detallada de cualquier perfil público. Las características principales incluyen:
 
-1. Accepts a **text input** from the user (a search term or username)
-2. Calls a **real external API** with that input
-3. **Stores** the response (in-memory, localStorage, or a simple DB)
-4. **Displays** a list of past results
+- **Búsqueda Instantánea**: Encuentra cualquier usuario de GitHub por su username.
+- **Perfil Detallado**: Visualización de avatar, bio, seguidores, seguidos y ubicación.
+- **Integración de README**: Si el usuario tiene un repositorio de perfil (el repositorio especial con el mismo nombre que el usuario), la aplicación extrae y renderiza el contenido del `README.md`.
+- **Repositorios Recientes**: Listado de los últimos 6 repositorios actualizados del usuario.
+- **Historial de Búsqueda**: Los usuarios buscados recientemente se guardan localmente para un acceso rápido.
+- **Estados de Carga Progresivos**: Implementación de skeletons (esqueletos de carga) para una mejor experiencia de usuario (UX).
+- **Manejo de Errores**: Feedback visual para usuarios no encontrados o límites de la API de GitHub excedidos.
 
-## Constraints
+## 🛠️ ¿Cómo se hizo?
 
-- Use any stack you want (React, Vue, plain JS, Python + Flask, etc.)
-- Keep it simple — no overengineering
-- Must be functional and runnable locally
+La aplicación se construyó siguiendo las mejores prácticas de React moderno:
 
-## Suggested APIs (free, no auth required)
+### Arquitectura y Tech Stack
+- **React 18**: Librería principal para la interfaz.
+- **Vite**: Herramienta de construcción para una experiencia de desarrollo ultrarrápida.
+- **CSS Vanilla (Custom Properties)**: Sistema de diseño personalizado con variables CSS para mantener la consistencia en colores, espaciados y efectos de glassmorphism.
 
-- `https://api.github.com/users/{username}` — GitHub user info
-- `https://api.thecatapi.com/v1/images/search` — random cat image
-- `https://jsonplaceholder.typicode.com/posts` — fake posts
-- Or any other public API you prefer
+### Lógica y Estado
+- **Custom Hook (`useGithubSearch`)**: Se centralizó toda la lógica de negocio en un hook personalizado. Este hook gestiona:
+  - Llamadas asíncronas a la API de GitHub usando `fetch`.
+  - Estados de carga, error y datos del usuario.
+  - Sincronización con `localStorage` para persistir el historial de búsqueda.
+- **GitHub API**: Se utilizaron múltiples endpoints de la API REST de GitHub:
+  - `GET /users/{username}` para datos básicos.
+  - `GET /repos/{owner}/{repo}/readme` para el contenido del README.
+  - `GET /users/{username}/repos` para el listado de proyectos.
 
-## Critical Requirement — AI Transparency Section
+### Componentización
+- **`SearchBar`**: Componente de entrada controlado con debounce y feedback visual de carga.
+- **`UserCard`**: Componente principal que utiliza un sistema de pestañas para alternar entre la información de "Acerca de" (README) y los "Repositorios".
+- **`SearchHistory`**: Componente lateral/inferior que permite re-visitar búsquedas previas con un solo clic.
 
-Your README **must** include a section called `## AI Usage` that answers:
+## 📦 Instalación y Ejecución
 
-1. What parts of this app were generated using AI tools?
-2. What parts did you write manually?
-3. What do you fully understand in this code?
-4. What parts are you uncertain about?
+1. Entra en la carpeta del proyecto:
+   ```bash
+   cd 05-mini-app
+   ```
 
-**This section is mandatory. Missing it = automatic rejection of this module.**
+2. Instala las dependencias:
+   ```bash
+   npm install
+   ```
 
-## What to Submit
+3. Inicia el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
 
-- Your **repo URL**
-- Optional: demo link (Vercel, Netlify, Replit, etc.)
-
-## Evaluation Criteria
-
-| Criterion | Weight |
-|-----------|--------|
-| App works as described | 40% |
-| AI Transparency section present and honest | 30% |
-| Code is simple and not over-engineered | 15% |
-| Candidate can explain their own decisions | 15% |
-
-> Simple code + clear reasoning = HIGH SCORE  
-> Perfect code + poor explanation = PENALTY
+4. Abre tu navegador en `http://localhost:5173`

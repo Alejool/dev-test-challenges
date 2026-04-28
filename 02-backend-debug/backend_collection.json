@@ -37,7 +37,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"Antigravity\",\n    \"value\": \"Powerful agentic AI coding assistant\"\n}"
+					"raw": "{\n    \"name\": \"Alejandro\",\n    \"value\": \"Prueba IABOT\"\n}"
 				},
 				"url": {
 					"raw": "{{baseUrl}}/save",
@@ -93,7 +93,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"Test\",\n    \"value\": \"\"\n}"
+					"raw": "{\n    \"name\": \"Test\",\n    \"value\": \"Test\"\n}"
 				},
 				"url": {
 					"raw": "{{baseUrl}}/save",
@@ -132,7 +132,7 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "http://localhost:3001",
+			"value": "https://dev-test-challenges.onrender.com",
 			"type": "string"
 		}
 	]

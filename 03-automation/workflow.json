@@ -1,0 +1,378 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "register-user",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [-3552, 2400],
+      "id": "bfe9b010-5f21-4431-9ee3-92a13b3e6a10",
+      "webhookId": "0fdc1611-c744-4eb2-ac50-bf3a7c6988b8"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "email",
+              "value": "={{ $json.body?.email ?? $json.email ?? '' }}"
+            },
+            {
+              "name": "name",
+              "value": "={{ $json.body?.name ?? $json.name ?? '' }}"
+            },
+            {
+              "name": "source",
+              "value": "={{ $json.body?.source ?? $json.source ?? '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [-3360, 2400],
+      "id": "0940428d-cf69-4e07-8ac3-dc5667df0669"
+    },
+    {
+      "parameters": {
+        "functionCode": "for (const item of items) {\n  const email = item.json.email || '';\n\n  function isValidEmail(e) {\n    if (!e || typeof e !== 'string') return false;\n    if (e.length > 254) return false;\n    if (/\\s/.test(e)) return false;\n    const parts = e.split('@');\n    if (parts.length !== 2) return false;\n    const [local, domain] = parts;\n    if (local.length === 0 || local.length > 64) return false;\n    if (local.startsWith('.') || local.endsWith('.')) return false;\n    if (local.includes('..')) return false;\n    if (!/^[a-zA-Z0-9._%+\\-]+$/.test(local)) return false;\n    const domainParts = domain.split('.');\n    if (domainParts.length < 2) return false;\n    const tld = domainParts[domainParts.length - 1];\n    if (tld.length < 2 || !/^[a-zA-Z]{2,}$/.test(tld)) return false;\n    for (const part of domainParts) {\n      if (part.length === 0) return false;\n      if (part.startsWith('-') || part.endsWith('-')) return false;\n      if (!/^[a-zA-Z0-9\\-]+$/.test(part)) return false;\n    }\n    return true;\n  }\n\n  item.json.emailValid = isValidEmail(email);\n}\n\nreturn items;"
+      },
+      "name": "Validate Email",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [-3152, 2400],
+      "id": "b02e3a80-7204-41e2-ac1e-9c358ae3c8f1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.emailValid }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Is Email Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [-2960, 2400],
+      "id": "f1a2b3c4-d5e6-7890-abcd-ef1234567890"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "users",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $json.email }}"
+            }
+          ]
+        }
+      },
+      "name": "Check Duplicate",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [-2752, 2304],
+      "alwaysOutputData": true,
+      "id": "e814ad2c-29bf-49bb-b253-21af1fe5ae1e",
+      "credentials": {
+        "supabaseApi": {
+          "id": "0oSWyyuDP1HbHgEA",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id ?? '' }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "Is Duplicate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [-2544, 2304],
+      "id": "2d9ed46f-a018-4eca-a1fa-9a88bf58c5b2"
+    },
+    {
+      "parameters": {
+        "tableId": "users",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $('Validate Email').item.json.name }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $('Validate Email').item.json.email }}"
+            },
+            {
+              "fieldId": "source",
+              "fieldValue": "={{ $('Validate Email').item.json.source }}"
+            }
+          ]
+        }
+      },
+      "name": "Save User",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [-2352, 2192],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "id": "67ea0ea9-b444-43fb-92cd-90f1129518da",
+      "credentials": {
+        "supabaseApi": {
+          "id": "0oSWyyuDP1HbHgEA",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "tableId": "error_logs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $('Validate Email').item.json.email }}"
+            },
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $('Validate Email').item.json.name }}"
+            },
+            {
+              "fieldId": "source",
+              "fieldValue": "={{ $('Validate Email').item.json.source }}"
+            },
+            {
+              "fieldId": "error_message",
+              "fieldValue": "={{ $node[\"Save User\"].json.error?.message ?? 'Unknown error' }}"
+            },
+            {
+              "fieldId": "error_code",
+              "fieldValue": "={{ $node[\"Save User\"].json.error?.code ?? 'UNKNOWN' }}"
+            },
+            {
+              "fieldId": "attempted_at",
+              "fieldValue": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "name": "Log Error",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [-2352, 2416],
+      "id": "3789cf57-a7d9-4184-9efa-6dbc03df302d",
+      "credentials": {
+        "supabaseApi": {
+          "id": "0oSWyyuDP1HbHgEA",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "{\n  \"status\": \"saved\",\n  \"message\": \"User registered successfully\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [-2096, 2192],
+      "id": "6e0a3345-bce1-4907-b42e-6581cf16a1ac"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "{\n  \"status\": \"error\",\n  \"message\": \"Failed to save user. The attempt has been logged.\"\n}",
+        "options": {
+          "responseCode": 500
+        }
+      },
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [-2080, 2416],
+      "id": "d89ce47f-fb83-4e73-b0b5-e6f52a5a9c0c"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "{\n  \"status\": \"invalid\",\n  \"message\": \"Invalid email format\"\n}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "name": "Respond Invalid",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [-2752, 2512],
+      "id": "9314934a-e0f2-4554-84ed-424a5b1a8bab"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "{\n  \"status\": \"duplicate\",\n  \"message\": \"The email is already registered\"\n}",
+        "options": {
+          "responseCode": 409
+        }
+      },
+      "name": "Respond Duplicate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [-2480, 2640],
+      "id": "4d1a89e4-f5be-4645-816f-e7e9a7008a3c"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Validate Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Email": {
+      "main": [
+        [
+          {
+            "node": "Is Email Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Email Valid?": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Invalid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Is Duplicate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Duplicate?": {
+      "main": [
+        [
+          {
+            "node": "Respond Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save User": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error": {
+      "main": [
+        [
+          {
+            "node": "Respond Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4708b4a0-b873-4f50-ae84-b8765632fd34",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f48f102394c2b67b4d8911846ed4dbfc0c39737111d462991ef96568855f7cd4"
+  },
+  "id": "uYAVjQY3DSNygygy",
+  "tags": []
+}

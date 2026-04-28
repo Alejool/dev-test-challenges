@@ -1,0 +1,139 @@
+{
+	"info": {
+		"name": "02-Backend-Debug Collection",
+		"_postman_id": "82c71e61-8906-40cb-bbe2-f8935a80f91c",
+		"description": "Postman collection for testing the backend debug challenge endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Data",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/data",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"data"
+					]
+				},
+				"description": "Retrieves data from the simulated database."
+			},
+			"response": []
+		},
+		{
+			"name": "Save Data",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Antigravity\",\n    \"value\": \"Powerful agentic AI coding assistant\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/save",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"save"
+					]
+				},
+				"description": "Saves a new record with name and value."
+			},
+			"response": []
+		},
+		{
+			"name": "Save Data (Missing Name Error)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"value\": \"This should fail because name is missing\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/save",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"save"
+					]
+				},
+				"description": "Tests validation for missing name."
+			},
+			"response": []
+		},
+		{
+			"name": "Save Data (Empty Value Error)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Test\",\n    \"value\": \"\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/save",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"save"
+					]
+				},
+				"description": "Tests validation for empty value."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3001",
+			"type": "string"
+		}
+	]
+}
